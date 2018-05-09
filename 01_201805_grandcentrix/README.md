@@ -2,4 +2,4 @@
 
 ## Slides
 
-* [Begrüßung](http://go-talks.appspot.com/github.com/gocologne/meetups/01_201805_grandcentrix/introduction.slide)
+* [Begrüßung](https://go-talks.appspot.com/github.com/gocologne/meetups/01_201805_grandcentrix/slides/introduction.slide)
