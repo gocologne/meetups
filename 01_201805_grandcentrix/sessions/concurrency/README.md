@@ -59,6 +59,10 @@ Channels werden verwendet, um Werte zwischen Go Routinen auszutauschen.
 * https://play.golang.org/p/FnHM72zh4k7 
 * https://play.golang.org/p/zzLt80MzYdc 
 
+* Beispiel: 
+    * sum Aufgabe: https://play.golang.org/p/HwRoC6adZSU
+    * sum Lösung: https://play.golang.org/p/Wmkok6aHXkj
+
 
 ## Buffered Channels - Channel mit Puffer
 
