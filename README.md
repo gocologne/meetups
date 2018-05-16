@@ -12,6 +12,7 @@ Meetup Organisation
 * [Tour of Go](https://tour.golang.org/welcome/2) inkl. Übersetzungen
 * [exercism.io](http://exercism.io/languages/go/about) Go Wissen durch Übungen vertiefen. Ist auch etwas für Profis.
 * [gophercises](https://gophercises.com/) Übungen mit Videos
+* [awesome-go](https://awesome-go.com/) Übersicht über Pakete, Frameworks, Tools, ... rund um Go
 
 ## Pakete
 
