@@ -1,5 +1,9 @@
 # meetups
+
 Meetup Organisation
+
+Wir sind auch im Gopher Slack (Channel #cologne). Solltest Du noch keinen Zugang haben. Die Anmeldung erfolgt über: https://invite.slack.golangbridge.org/
+
 
 # Slides
 

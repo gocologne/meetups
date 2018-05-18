@@ -84,3 +84,8 @@ c := make(chan int, 3) // Buffer = 3
 * Join Channels: https://play.golang.org/p/YsPi0ieSjAd 
 * WaitGroup mit Channels: https://play.golang.org/p/UIoerxzz3v6 
     * Lösung: https://play.golang.org/p/neWXD2Xmzj- 
+
+
+# Backup
+
+* [Go Concurrency Patterns: Pipelines and cancellation](https://blog.golang.org/pipelines)
