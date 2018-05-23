@@ -26,3 +26,13 @@ Wir sind auch im Gopher Slack (Channel #cologne). Solltest Du noch keinen Zugang
 * https://rakyll.org/style-packages/
 * https://medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1#.ds38va3pp
 * https://peter.bourgon.org/go-best-practices-2016/#repository-structure
+
+# Locations und Sponsoren
+
+Ein kleines Backlog von Locations für die kommenden meetups. Sollte hier ein Eintrag fehlen, einfach ein Issue aufmachen.
+
+* [webfactory](https://www.webfactory.de/) (Bonn) - geplant für Juni
+* [snabble](https://snabble.io/) (Bonn)
+* [viaboxx](https://www.viaboxx.com/) (Königswinter)
+* [grandcentrix](https://www.grandcentrix.net/) (Köln)
+* [tarent](https://www.tarent.de/de) (Bonn)
