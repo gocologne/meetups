@@ -1,0 +1,105 @@
+Dave Cheneys Pop Quiz
+Go Cologne/Bonn
+Tags: Go, Cologne, Bonn
+
+Andreas Schröpfer
+@lyckade
+
+* Quiz 1
+
+Was gibt dieses Program aus?
+
+.play q1/q1.go
+
+* Ein kleiner Bug
+
+.play q2/q2.go
+
+- 3
+- 4
+- kompiliert nicht
+
+.link https://play.golang.org/p/cxcfysCKEsl
+
+* Quiz 3
+
+Kompiliert dieses Programm?
+
+.play q3/main.go
+
+* Quiz 4
+
+.play q4/main.go
+
+- 0
+- 2
+- 3
+- kompiliert nicht
+
+.link https://golang.org/ref/spec#Appending_and_copying_slices
+.link https://play.golang.org/p/x0gAeZ79oZ1
+
+* Quiz 5
+Was macht dieses Programm?
+
+.play q5/main.go
+
+- unendlicher Loop
+- läuft problemlos durch
+- kompiliert nicht
+
+* Quiz 6
+
+Was gibt dieses Programm aus?
+
+.play q6/main.go
+
+* Quiz 7
+
+Was gibt dieses Programm aus?
+
+.play q7/main.go
+
+.link https://golang.org/ref/spec#Arithmetic_operators
+
+* Quiz 8
+
+Was für ein Typ hat hier b.A()?
+
+.play q8/main.go
+
+* Quiz 9
+
+Wird dieses Programm beendet?
+
+.play q9/main.go
+
+* Quiz 10
+
+Was gibt dieses Programm aus?
+
+.play q10/main.go
+
+* Quiz 11
+
+Was gibt dieses Programm aus?
+
+.play q11/main.go
+
+* Quiz 12
+
+Was gibt dieses Programm aus?
+
+.play q12/main.go
+
+* Quiz 13
+
+Was gibt dieses Programm aus?
+
+.play q13/main.go
+
+* Quiz 14
+
+Was gibt dieses Programm aus?
+
+.play q14/main.go
