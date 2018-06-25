@@ -4,8 +4,8 @@
 
 Talks:
 
-* Reaktives Programmieren in Go
-* Echo Framework, Cockroach DB und POP
+* [Pop Quiz](https://go-talks.appspot.com/github.com/gocologne/meetups/02_201806_webfactory/popquiz/popquiz.slide#1)
+* Bufallo
 
 ## Slides
 
