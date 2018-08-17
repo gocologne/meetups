@@ -1,6 +1,18 @@
 
 # Concurrency Patterns
 
+Diese Session baut auf [Einführung in Concurrency](https://github.com/gocologne/meetups/tree/master/01_201805_grandcentrix/sessions/concurrency) auf.
+
+## Wichtig bei Verwendung von Goroutinen
+* Wenn man eine Goroutine startet, dann sollte man immer auch an das Ende dieser Goroutine denken!
+* Leaking Goroutines
+    * Goroutinen welche **ungewollt** unendlich lang laufen
+    * Ursache ist meistens blockierender code
+    * Problem ist, wenn langsam immer mehr blockierende Groroutinen hinzukommen
+    * Garbage Collector kann diese nicht aufräumen
+    * Können auch durch Fremdpakete erzeugt werden
+
+
 ## Simple
 ### Generator
 
@@ -57,11 +69,53 @@ https://play.golang.org/p/V5ihV4qkZVj
 
 ### Quit channel
 
-## More advanced
+### Leaking Goroutine durch select
+* kein Pattern, sondern negativ Beispiel
+* oft nicht sofort erkennbar
+
+
+```go
+func myFunc(ctx context.Context) error {
+	errc := make(chan error)
+	go func() {
+		errc <- doSomething()
+	}()
+	select {
+	case err := <-errc:
+		return err
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+```
+
+## Zusammengesetzte Patterns
+
+### Context
 
 ### Worker
+* ein oder mehrere Worker werdengestartet
+* über einen Channel werden die Aufgaben an die Worker gesendet
+* Scheduler verteilt die Aufgaben an die Worker
 
-### Semaphore
+### Semaphores
+
+
+* Mit Buffered Channels (https://golang.org/doc/effective_go.html#channels)
+
+```go
+func Serve(queue chan *Request) {
+    for req := range queue {
+        req := req // Create new instance of req for the goroutine.
+        sem <- 1
+        go func() {
+            process(req)
+            <-sem
+        }()
+    }
+}
+```
+
 
 # Weiterführende Links
 
@@ -74,3 +128,4 @@ https://play.golang.org/p/V5ihV4qkZVj
 * [Go Concurrency Patterns: Context](https://blog.golang.org/context)
 * https://rodaine.com/2018/08/x-files-sync-golang/
 * https://godoc.org/golang.org/x/sync
+* [Golangpatterns](http://www.golangpatterns.info/concurrency)
