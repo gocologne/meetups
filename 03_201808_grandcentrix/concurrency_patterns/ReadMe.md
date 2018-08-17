@@ -15,12 +15,28 @@ Diese Session baut auf [Einführung in Concurrency](https://github.com/gocologne
 
 ## Simple
 ### Generator
+* Die Funktion erzeugt eine Goroutine
+* und liefert einen Channel als Return-Wert
 
-* Funktion generiert einen Channel und liefert diesen zurück
+```go
+func gen() chan string {
+	ch := make(chan string)
+	go func() {
+		fmt.Println("Generator läuft")
+		for {
+			ch <- "ich warte noch zwei Sekunden"
+			time.Sleep(time.Second * 2)
+		}
+	}()
+	return ch
+}
+```
+
+https://play.golang.org/p/TxGhUNfgE4a
 
 ### Pipeline
 * Ein Input und ein Output Channel
-* Kann auch als Generator funktionieren
+
 
 ```go
 func sq(in <-chan int) <-chan int {
@@ -34,7 +50,7 @@ func sq(in <-chan int) <-chan int {
     return out
 }
 ```
-
+* Kann auch als Generator funktionieren
 ```go
 func sq2(in <-chan int, out chan<- int){
     go func() {
@@ -47,23 +63,60 @@ func sq2(in <-chan int, out chan<- int){
 ```
 https://play.golang.org/p/V5ihV4qkZVj
 
+* Übung: [Sieb des Eratosthenes](https://de.wikipedia.org/wiki/Sieb_des_Eratosthenes)
+    * Erstelle einen Generator, welcher `int` an einen Channel schickt
+    * Erstelle eine Pipeline, welche zu einer Primzahl die Vielfachen rausfiltert
+    * Erzeuge für jede gefundene Primzahl einen neuen Filter
+    * die erste Zahl, welche durch alle Filter durchkommt ist eine neu gefundene Primzahl
+
 ### Fan In
 
 * Input: mehrere Channels 
 * Output: ein Channel
-* Umsetzung mit mehreren Goroutingen
+* Umsetzung mit mehreren Goroutinen
+    * https://play.golang.org/p/oqUck7rxnUy
+    * https://play.golang.org/p/78VY_ttsWl2
+
+```go
+func fanIn(ch1, ch2, ch3 chan string) chan string {
+	out := make(chan string)
+	go func() { out <- <-ch1 }()
+	go func() { out <- <-ch2 }()
+	go func() { out <- <-ch3 }()
+	return out
+}
+```
+* Übung: Fan In für bliebig viele Channels mit einer variadischen Funktion (variadic function) 
+
 * Umsetzung mit select
 
 ### Fan Out
 * mehrere Funktionen lesen von einem Channel
 
 ### Wait Channel
-
 * Channel blockiert bis eine Nachricht kommt
+* Synchrinisierung von Goroutinen
 
 ## Select
 
 ### for-select loop
+* Standardfall
+
+```go
+func myGoroutine(ch1, ch2 chan string) {
+	for {
+		select {
+		case s := <-ch1:
+			doThis(s)
+		case s := <-ch2:
+			doThat(s)
+		default:
+			// should not block
+		}
+	}
+}
+```
+
 
 ### Timeout mit select
 
@@ -92,6 +145,8 @@ func myFunc(ctx context.Context) error {
 ## Zusammengesetzte Patterns
 
 ### Context
+* https://golang.org/pkg/context/
+* https://blog.golang.org/context
 
 ### Worker
 * ein oder mehrere Worker werdengestartet
