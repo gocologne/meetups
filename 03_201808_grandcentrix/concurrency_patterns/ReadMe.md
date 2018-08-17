@@ -93,6 +93,33 @@ func fanIn(ch1, ch2, ch3 chan string) chan string {
 ### Fan Out
 * mehrere Funktionen lesen von einem Channel
 
+```go
+func main() {
+	c := make(chan string)
+	go myGoroutine(c, "Routine 1")
+	go myGoroutine(c, "Routine 2")
+	go myGoroutine(c, "Routine 3")
+	go myGoroutine(c, "Routine 4")
+	c <- "Test1"
+	time.Sleep(time.Second)
+	c <- "Test2"
+	time.Sleep(time.Second)
+	c <- "Test3"
+	time.Sleep(time.Second)
+	c <- "Test4"
+	time.Sleep(time.Second)
+}
+
+func myGoroutine(ch chan string, name string) {
+	fmt.Println("Starte: ", name)
+	for {
+		msg := <-ch
+		fmt.Printf("%s: %s\n", name, msg)
+	}
+}
+```
+https://play.golang.org/p/VxQPtHsQEcP
+
 ### Wait Channel
 * Channel blockiert bis eine Nachricht kommt
 * Synchrinisierung von Goroutinen
@@ -116,6 +143,21 @@ func myGoroutine(ch1, ch2 chan string) {
 	}
 }
 ```
+
+### range über Channel
+* Verwendung von `range`
+* loop endet, wenn channel geschlossen wird
+
+```go
+func myGoroutine(ch chan string, name string) {
+	fmt.Println("Starte: ", name)
+	for msg := range ch {
+		fmt.Printf("%s: %s\n", name, msg)
+	}
+	fmt.Println("Beende: ", name)
+}
+```
+https://play.golang.org/p/hNQkQLPgXsM
 
 
 ### Timeout mit select
