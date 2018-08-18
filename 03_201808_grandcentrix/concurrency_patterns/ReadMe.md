@@ -123,6 +123,9 @@ https://play.golang.org/p/VxQPtHsQEcP
 ### Wait Channel
 * Channel blockiert bis eine Nachricht kommt
 * Synchrinisierung von Goroutinen
+* Wird im time Paket verwendet
+	* https://golang.org/pkg/time/#After
+	* https://golang.org/pkg/time/#Tick
 
 ## Select
 
@@ -147,13 +150,16 @@ func myGoroutine(ch1, ch2 chan string) {
 ### range über Channel
 * Verwendung von `range`
 * loop endet, wenn channel geschlossen wird
+* wenn möglich immer verwenden
 
 ```go
 func myGoroutine(ch chan string, name string) {
 	fmt.Println("Starte: ", name)
+	// setup()
 	for msg := range ch {
 		fmt.Printf("%s: %s\n", name, msg)
 	}
+	// cleanup()
 	fmt.Println("Beende: ", name)
 }
 ```
@@ -162,7 +168,32 @@ https://play.golang.org/p/hNQkQLPgXsM
 
 ### Timeout mit select
 
+```go
+timeout := time.Second * 3
+result := make(chan int, 1)
+go func() {
+	// r := doSomething()
+	result <- r
+}()
+
+select {
+case r := <-result:
+	//useResult(r)
+case <-time.After(timeout):
+	fmt.Println("timeout")
+}
+```
+
 ### Quit channel
+
+```go
+select {
+case r := <-result:
+	//useResult(r)
+case <-quitc:
+	fmt.Println("timeout")
+}
+```
 
 ### Leaking Goroutine durch select
 * kein Pattern, sondern negativ Beispiel
@@ -213,6 +244,76 @@ func Serve(queue chan *Request) {
 }
 ```
 
+### Quit signal
+
+* starte eine Goroutine, welche das Ctrl+C verarbeitet
+* Quit channel wird geschlossen
+* vor `os.Exit()` sollte gewartet werden bis alle Aufräumarbeiten abgeschlossen sind
+* [Notify benötigt einen buffered channel](https://golang.org/pkg/os/signal/#Notify) 
+
+```go
+c := make(chan os.Signal, 1)
+quitc := make(chan struct{})
+
+signal.Notify(c, os.Interrupt)
+go func() {
+	for s := range c {
+		fmt.Println("Got signal:", s)
+		fmt.Println("closing quitc")
+		close(quitc)
+		cleanup()
+		os.Exit(0)
+	}
+}()
+```
+
+### Actors (advanced)
+* Peter Bourgon: https://www.youtube.com/watch?v=LHe1Cb_Ud_M
+* Kombination von oben gezeigten Patterns
+
+```go
+type stateMachine struct {
+	state   string
+	actionc chan func()
+	quitc   chan struct{}
+}
+
+func (sm *stateMachine) loop() {
+	for {
+		select {
+		case f := <-sm.actionc:
+			f()
+		case <-sm.quitc:
+			return
+		}
+	}
+}
+
+func (sm *stateMachine) foo() int {
+	c := make(chan int)
+	sm.actionc <- func() {
+		if sm.state == "A" {
+			sm.state = "B"
+		}
+		c <- 123
+	}
+	return <-c
+}
+```
+* Im Constructor kann hierzu die Goroutine gestartet werden
+
+```go
+func New() *stateMachine {
+	sm := &stateMachine{
+		state:   "initial",
+		actionc: make(chan func()),
+		quitc:   make(chan struct{}),
+	}
+	go sm.loop()
+	go sm.loop()
+	return sm
+}
+```
 
 # Weiterführende Links
 
