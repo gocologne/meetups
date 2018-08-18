@@ -35,7 +35,7 @@ func gen() chan string {
 https://play.golang.org/p/TxGhUNfgE4a
 
 ### Pipeline
-* Ein Input und ein Output Channel
+* Kann auch als Generator funktionieren
 
 
 ```go
@@ -50,7 +50,8 @@ func sq(in <-chan int) <-chan int {
     return out
 }
 ```
-* Kann auch als Generator funktionieren
+
+* Ein Input und ein Output Channel
 ```go
 func sq2(in <-chan int, out chan<- int){
     go func() {
@@ -309,7 +310,6 @@ func New() *stateMachine {
 		actionc: make(chan func()),
 		quitc:   make(chan struct{}),
 	}
-	go sm.loop()
 	go sm.loop()
 	return sm
 }
