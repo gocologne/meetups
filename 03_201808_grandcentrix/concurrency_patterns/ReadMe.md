@@ -268,9 +268,11 @@ go func() {
 }()
 ```
 
-### Actors (advanced)
+### State Machnie
 * Peter Bourgon: https://www.youtube.com/watch?v=LHe1Cb_Ud_M
-* Kombination von oben gezeigten Patterns
+* Verwendung, wenn Zugriffe auf den Typ über mehrere Goroutinen erfolgen
+* Alle lesenden und schreibenen Zugriffe können über die Methode `loop()` erfolgen
+* Vermeindung von Dataraces, da ja nur `loop()` lesen und schreiben darf
 
 ```go
 type stateMachine struct {
@@ -292,6 +294,8 @@ func (sm *stateMachine) loop() {
 
 func (sm *stateMachine) foo() int {
 	c := make(chan int)
+	// Definition der Funktion hier jedoch wird diese
+	// im loop ausgeführt
 	sm.actionc <- func() {
 		if sm.state == "A" {
 			sm.state = "B"
@@ -300,10 +304,9 @@ func (sm *stateMachine) foo() int {
 	}
 	return <-c
 }
-```
-* Im Constructor kann hierzu die Goroutine gestartet werden
 
-```go
+// Im Constructor kann hierzu die Goroutine gestartet werden
+
 func New() *stateMachine {
 	sm := &stateMachine{
 		state:   "initial",
