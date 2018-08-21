@@ -1,9 +1,39 @@
 
-# Concurrency Patterns
+
+
+
+<!-- TOC -->
+
+- [1. Concurrency Patterns](#1-concurrency-patterns)
+	- [1.1. Wichtig bei Verwendung von Goroutinen](#11-wichtig-bei-verwendung-von-goroutinen)
+	- [1.2. Simple](#12-simple)
+		- [1.2.1. Generator](#121-generator)
+		- [1.2.2. Pipeline](#122-pipeline)
+		- [1.2.3. Fan In](#123-fan-in)
+		- [1.2.4. Fan Out](#124-fan-out)
+		- [1.2.5. Wait Channel](#125-wait-channel)
+		- [1.2.6. Channel of Channel](#126-channel-of-channel)
+	- [1.3. Select](#13-select)
+		- [1.3.1. for-select loop](#131-for-select-loop)
+		- [1.3.2. range über Channel](#132-range-%C3%BCber-channel)
+		- [1.3.3. Timeout mit select](#133-timeout-mit-select)
+		- [1.3.4. Quit channel](#134-quit-channel)
+		- [1.3.5. Leaking Goroutine durch select](#135-leaking-goroutine-durch-select)
+	- [1.4. Zusammengesetzte Patterns](#14-zusammengesetzte-patterns)
+		- [1.4.1. Context](#141-context)
+		- [1.4.2. Worker](#142-worker)
+		- [1.4.3. Semaphores](#143-semaphores)
+		- [1.4.4. Quit signal](#144-quit-signal)
+		- [1.4.5. State Machnie](#145-state-machnie)
+- [2. Weiterführende Links](#2-weiterf%C3%BChrende-links)
+
+<!-- /TOC -->
+
+# 1. Concurrency Patterns
 
 Diese Session baut auf [Einführung in Concurrency](https://github.com/gocologne/meetups/tree/master/01_201805_grandcentrix/sessions/concurrency) auf.
 
-## Wichtig bei Verwendung von Goroutinen
+## 1.1. Wichtig bei Verwendung von Goroutinen
 * Wenn man eine Goroutine startet, dann sollte man immer auch an das Ende dieser Goroutine denken!
 * Leaking Goroutines
     * Goroutinen welche **ungewollt** unendlich lang laufen
@@ -13,8 +43,8 @@ Diese Session baut auf [Einführung in Concurrency](https://github.com/gocologne
     * Können auch durch Fremdpakete erzeugt werden
 
 
-## Simple
-### Generator
+## 1.2. Simple
+### 1.2.1. Generator
 * Die Funktion erzeugt eine Goroutine
 * und liefert einen Channel als Return-Wert
 
@@ -34,7 +64,7 @@ func gen() chan string {
 
 https://play.golang.org/p/TxGhUNfgE4a
 
-### Pipeline
+### 1.2.2. Pipeline
 * Kann auch als Generator funktionieren
 
 
@@ -70,7 +100,7 @@ https://play.golang.org/p/V5ihV4qkZVj
     * Erzeuge für jede gefundene Primzahl einen neuen Filter
     * die erste Zahl, welche durch alle Filter durchkommt ist eine neu gefundene Primzahl
 
-### Fan In
+### 1.2.3. Fan In
 
 * Input: mehrere Channels 
 * Output: ein Channel
@@ -91,7 +121,7 @@ func fanIn(ch1, ch2, ch3 chan string) chan string {
 
 * Umsetzung mit select
 
-### Fan Out
+### 1.2.4. Fan Out
 * mehrere Funktionen lesen von einem Channel
 
 ```go
@@ -121,16 +151,60 @@ func myGoroutine(ch chan string, name string) {
 ```
 https://play.golang.org/p/VxQPtHsQEcP
 
-### Wait Channel
+### 1.2.5. Wait Channel
 * Channel blockiert bis eine Nachricht kommt
 * Synchrinisierung von Goroutinen
 * Wird im time Paket verwendet
 	* https://golang.org/pkg/time/#After
 	* https://golang.org/pkg/time/#Tick
 
-## Select
+### 1.2.6. Channel of Channel
+* Problemstellung
+	* Goroutine 1 möchte in Goroutine 2 etwas auslösen 
+	* Goroutine 1 benötigt jedoch Rückmeldung von Goroutine 2
+* Lösung
+	* Goroutine 2 behandelt den Typ `chan chan Type`
+	* Goroutine 1 schickt somit einen `chan Type` über `chan chan Type`
 
-### for-select loop
+```go
+var wg sync.WaitGroup
+
+func main() {
+	count := make(chan int)
+	reset := make(chan chan int)
+	counter := make(chan int)
+	wg.Add(1)
+	go routine1(count, reset)
+	count <- 1
+	count <- 2
+	reset <- counter
+	fmt.Println(<-counter)
+	close(count)
+	wg.Wait()
+}
+
+func routine1(count chan int, reset chan chan int) {
+	defer wg.Done()
+	counter := 0
+	for {
+		select {
+		case i, ok := <-count:
+			if !ok {
+				return
+			}
+			counter += i
+		case c := <-reset:
+			c <- counter
+			counter = 0
+		}
+	}
+}
+```
+https://play.golang.org/p/ibJAWo86H50
+
+## 1.3. Select
+
+### 1.3.1. for-select loop
 * Standardfall
 
 ```go
@@ -148,7 +222,7 @@ func myGoroutine(ch1, ch2 chan string) {
 }
 ```
 
-### range über Channel
+### 1.3.2. range über Channel
 * Verwendung von `range`
 * loop endet, wenn channel geschlossen wird
 * wenn möglich immer verwenden
@@ -167,7 +241,7 @@ func myGoroutine(ch chan string, name string) {
 https://play.golang.org/p/hNQkQLPgXsM
 
 
-### Timeout mit select
+### 1.3.3. Timeout mit select
 
 ```go
 timeout := time.Second * 3
@@ -185,7 +259,7 @@ case <-time.After(timeout):
 }
 ```
 
-### Quit channel
+### 1.3.4. Quit channel
 
 ```go
 select {
@@ -196,7 +270,7 @@ case <-quitc:
 }
 ```
 
-### Leaking Goroutine durch select
+### 1.3.5. Leaking Goroutine durch select
 * kein Pattern, sondern negativ Beispiel
 * oft nicht sofort erkennbar
 
@@ -216,18 +290,18 @@ func myFunc(ctx context.Context) error {
 }
 ```
 
-## Zusammengesetzte Patterns
+## 1.4. Zusammengesetzte Patterns
 
-### Context
+### 1.4.1. Context
 * https://golang.org/pkg/context/
 * https://blog.golang.org/context
 
-### Worker
+### 1.4.2. Worker
 * ein oder mehrere Worker werdengestartet
 * über einen Channel werden die Aufgaben an die Worker gesendet
 * Scheduler verteilt die Aufgaben an die Worker
 
-### Semaphores
+### 1.4.3. Semaphores
 
 
 * Mit Buffered Channels (https://golang.org/doc/effective_go.html#channels)
@@ -245,7 +319,7 @@ func Serve(queue chan *Request) {
 }
 ```
 
-### Quit signal
+### 1.4.4. Quit signal
 
 * starte eine Goroutine, welche das Ctrl+C verarbeitet
 * Quit channel wird geschlossen
@@ -268,7 +342,7 @@ go func() {
 }()
 ```
 
-### State Machnie
+### 1.4.5. State Machnie
 * Peter Bourgon: https://www.youtube.com/watch?v=LHe1Cb_Ud_M
 * Verwendung, wenn Zugriffe auf den Typ über mehrere Goroutinen erfolgen
 * Alle lesenden und schreibenen Zugriffe können über die Methode `loop()` erfolgen
@@ -318,7 +392,7 @@ func New() *stateMachine {
 }
 ```
 
-# Weiterführende Links
+# 2. Weiterführende Links
 
 * [Visualizing Concurrency in Go](https://divan.github.io/posts/go_concurrency_visualize/)
 * [Share Memory By Communicating](https://blog.golang.org/share-memory-by-communicating)
